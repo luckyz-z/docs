@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "OpenAPI User Info",
+    "description": "An API that provides general account information about a specific user.",
     "license": {
       "name": "MIT"
     },
@@ -10,38 +10,74 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://ammo.lol/api/v1/public/"
     }
   ],
-  "security": [
+ "security": [
     {
-      "bearerAuth": []
+      "ApiKeyAuth": []
     }
   ],
   "paths": {
-    "/plants": {
+    "/user": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "description": "Returns general information about a specific user.",
         "parameters": [
           {
-            "name": "limit",
+            "name": "username",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "description": "Username of the ammo user",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "uid",
+            "in": "query",
+            "description": "UID of the ammo user",
+            "required": false,
             "schema": {
               "type": "integer",
-              "format": "int32"
+              "format": "int64"
+            }
+          },
+          {
+            "name": "discord_id",
+            "in": "query",
+            "description": "Discord ID of the ammo user",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "User information response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/User"
+                },
+                "examples": {
+                  "user": {
+                    "summary": "A User",
+                    "value": {
+                      "uid": 1,
+                      "username": "shock",
+                      "alias": "£",
+                      "profile_views": 471,
+                      "premium": true,
+                      "url": "https://ammo.lol/shock",
+                      "created": "22/03/2024",
+                      "created_formatted": "about 1 month ago",
+                      "background_url": "https://r2.ammo.lol/87bac22d-1ecb-4cb1-931f-6720021a5bac.gif",
+                      "audio_url": "https://r2.ammo.lol/7efe55eb-6cda-46a5-9d12-2e4a8ef78aec.mp3",
+                      "cursor_url": "https://r2.ammo.lol/90644787-3c89-4c8e-a873-b7126136c8ce.cur",
+                      "avatar_url": "https://r2.ammo.lol/516a3fa0-565d-4ef0-9f33-adb82997b5dd.gif",
+                      "description": "Developer of Ammo.lol"
+                    }
                   }
                 }
               }
@@ -56,35 +92,9 @@
                 }
               }
             }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
           },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -92,32 +102,9 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
           },
-          "400": {
-            "description": "unexpected error",
+          "404": {
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -132,48 +119,64 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "User": {
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
+          "uid": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "alias": {
+            "type": "string"
+          },
+          "profile_views": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "premium": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "created": {
+            "type": "string",
+            "format": "date"
+          },
+          "created_formatted": {
+            "type": "string"
+          },
+          "background_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "audio_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "cursor_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "avatar_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "description": {
             "type": "string"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
       "Error": {
+        "type": "object",
         "required": [
           "error",
           "message"
         ],
-        "type": "object",
         "properties": {
           "error": {
             "type": "integer",
@@ -186,9 +189,10 @@
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "name": "API-Key",
+        "in": "header"
       }
     }
   }
